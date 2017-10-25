@@ -1,0 +1,72 @@
+import pandas as pd
+
+
+def replace_space(df):
+	
+	cols = df.columns 
+	cols = [col.strip().replace(' ','_') for col in cols]
+	cols = [col.strip().replace('(mm^2)','mm2') for col in cols]
+	df.columns = cols
+	return df
+
+def change_col_name(df,prefix):
+	cols=df.columns
+	cols = cols.map(lambda x: prefix+x if x!='subjectID' else x) 
+	#print cols
+	df.columns = cols
+	return df
+
+
+def Generate_BrainCognitive(writeTo,B):
+
+	Brain_Info = pd.read_csv('./1year_files/1year_subcortical.csv')
+	B = pd.read_csv('LABELS.csv')
+
+
+	Brain_cog=pd.merge(Brain_Info,B,on='subjectID')
+	print 'Merge of Labels and 1year_subcortical.csv:',Brain_cog.shape
+
+	for brain_info_file in rest_files:
+		print brain_info_file
+		Brain_Info = pd.read_csv(brain_info_file)
+		if brain_info_file=='./1year_files/1year_CT.csv':
+			Brain_Info=change_col_name(Brain_Info,'CT_')	
+		if brain_info_file=='./1year_files/1year_SA_Middle.csv':
+			Brain_Info=change_col_name(Brain_Info,'SA_')
+		if brain_info_file=='./1year_files/1year_WMProbMapBoxParc.csv':
+			Brain_Info=change_col_name(Brain_Info,'WM_')
+		if brain_info_file=='./1year_files/1year_GMProbMapBoxParc.csv':
+			Brain_Info=change_col_name(Brain_Info,'GM_')
+		if brain_info_file=='./1year_files/1year_CSFProbMapBoxParc.csv':
+			Brain_Info=change_col_name(Brain_Info,'CSF_')
+		if brain_info_file=='./1year_files/1year_GM90Region.csv':
+			Brain_Info=change_col_name(Brain_Info,'90RG_')
+		Brain_cog=pd.merge(Brain_Info,Brain_cog,on='subjectID')
+		print Brain_cog.shape
+
+	print sum(Brain_cog['Label'])
+	print sum(Brain_cog['Label'])*100.0/(Brain_cog.shape[0])
+
+	Brain_cog=replace_space(Brain_cog)
+
+	Brain_cog.to_csv(writeTo,index=False)
+
+
+all_files = []
+Join_files=['./1year_files/1year_subcortical.csv','LABELS.csv']
+rest_files = ['./1year_files/1year_GM90Region.csv','./1year_files/1year_Vent_Vol.csv','./1year_files/1year_CT.csv','./1year_files/1year_SA_Middle.csv','./1year_files/1year_CT_Average.csv','./1year_files/1year_SA_MiddleTotal.csv',
+'./1year_files/1year_WMProbMapBoxParc.csv','./1year_files/1year_CSFProbMapBoxParc.csv','./1year_files/1year_GMProbMapBoxParc.csv','./1year_files/1year_ICV_Info.csv']
+all_files = Join_files+rest_files
+
+for brain_info_file in all_files:
+	
+	Brain_Info = pd.read_csv(brain_info_file)
+	Brain_Info['subjectID'] = [c.strip() for c in Brain_Info['subjectID']]
+	print brain_info_file, Brain_Info.shape	
+	Brain_Info.to_csv(brain_info_file,index=False)	
+
+B = pd.read_csv('LABELS.csv')
+Generate_BrainCognitive('./1year_files/1year_Brain_cog.csv',B)
+
+B = pd.read_csv('LABELS_balanced.csv')
+Generate_BrainCognitive('./1year_files/1year_Brain_cog_balanced.csv',B)

@@ -1,0 +1,19 @@
+from os import system
+
+print 'Running Unlabled Brain data ...'
+system('python ./2year_files/2year_BrainData.py')
+
+print 'Running BrainCognitive.py ...'
+system('python ./2year_files/2year_BrainCognitive.py')
+
+print 'Running Uncomplete Brain Data including Null ...'
+system('python ./2year_files/2year_BrainUncomp.py')
+
+print 'Selecting subset of Brain features ...'
+system('python ./2year_files/2year_BrainSubsetFeaturs.py')
+
+print 'Running Labled DiffusionData.py ...'
+system('python ./2year_files/2year_DiffusionData.py')
+
+print 'Running Unlabled DiffusionData.py ...'
+system('python ./2year_files/2year_UnDiffusionData.py')
